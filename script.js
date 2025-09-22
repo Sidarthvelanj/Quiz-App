@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 const questions = [
   {
     question: "What is the only mammal that cannot jump?",
@@ -91,146 +92,147 @@ const questions = [
   }
 ];
 
-const questionElement = document.getElementById("question");
-const answerButtons = document.getElementById("option-container");
-const nextButton = document.getElementById("next-btn");
-const welcomeScreen = document.getElementById("welcome-screen");
-const quizScreen = document.getElementById("quiz-screen");
-const startBtn = document.getElementById("start-btn");
-const timerDisplay = document.getElementById("timer");
-const resultScreen = document.getElementById("result-screen");
-const resultText = document.getElementById("result-text");
-const restartBtn = document.getElementById("restart-btn");
 
-let currentQuestionIndex = 0;
-let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
-let timer;
-let timeLeft = 8;
-let answerSelected = false;
+  const questionElement = document.getElementById("question");
+  const answerButtons = document.getElementById("option-container");
+  const nextButton = document.getElementById("next-btn");
+  const welcomeScreen = document.getElementById("welcome-screen");
+  const quizScreen = document.getElementById("quiz-screen");
+  const startBtn = document.getElementById("start-btn");
+  const timerDisplay = document.getElementById("timer");
+  const resultScreen = document.getElementById("result-screen");
+  const resultText = document.getElementById("result-text");
+  const restartBtn = document.getElementById("restart-btn");
 
-function startQuiz() {
-  questions.sort(() => Math.random() - 0.5);
-  currentQuestionIndex = 0;
-  score = 0;
-  nextButton.innerHTML = "Next";
-  nextButton.onclick = handleNext;
-  questionElement.classList.remove("perfect-score");
-  questionElement.innerHTML = "";
-  resultScreen.classList.remove("active");
-  resultScreen.classList.add("hidden");
-  quizScreen.classList.add("active");
-  loadQuestion();
-}
+  let currentQuestionIndex = 0;
+  let score = 0;
+  let highScore = localStorage.getItem("highScore") || 0;
+  let timer;
+  let timeLeft = 8;
+  let answerSelected = false;
 
-function loadQuestion() {
-  resetState();
-  clearInterval(timer);
-  timeLeft = 8;
-  answerSelected = false;
-  updateTimerDisplay();
-
-  timer = setInterval(() => {
-    timeLeft--;
-    updateTimerDisplay();
-    if (timeLeft <= 0 && !answerSelected) {
-      clearInterval(timer);
-      answerSelected = true;
-      handleNext();
-    }
-  }, 1000);
-
-  const current = questions[currentQuestionIndex];
-  questionElement.innerHTML = `${currentQuestionIndex + 1}. ${current.question}`;
-
-  current.answers.forEach(answer => {
-    const btn = document.createElement("button");
-    btn.classList.add("option");
-    btn.innerHTML = answer.text;
-    if (answer.correct) btn.dataset.correct = true;
-    btn.addEventListener("click", () => {
-      if (answerSelected) return;
-      answerSelected = true;
-      clearInterval(timer);
-      checkAnswer(btn);
-    });
-    answerButtons.appendChild(btn);
-  });
-}
-
-function updateTimerDisplay() {
-  timerDisplay.textContent = `Time left: ${timeLeft}s`;
-}
-
-function resetState() {
-  nextButton.classList.remove("show");
-  while (answerButtons.firstChild) {
-    answerButtons.removeChild(answerButtons.firstChild);
-  }
-}
-
-function checkAnswer(button) {
-  const isCorrect = button.dataset.correct === "true";
-  if (isCorrect) score++;
-  button.classList.add(isCorrect ? "correct" : "incorrect");
-
-  Array.from(answerButtons.children).forEach(btn => {
-    btn.disabled = true;
-    btn.classList.add("locked");
-    if (btn.dataset.correct === "true") btn.classList.add("correct");
-  });
-
-  nextButton.classList.add("show");
-}
-
-function handleNext() {
-  currentQuestionIndex++;
-  if (currentQuestionIndex < questions.length) {
+  function startQuiz() {
+    questions.sort(() => Math.random() - 0.5);
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerHTML = "Next";
+    nextButton.onclick = handleNext;
+    questionElement.classList.remove("perfect-score");
+    questionElement.innerHTML = "";
+    resultScreen.classList.remove("active");
+    resultScreen.classList.add("hidden");
+    quizScreen.classList.add("active");
     loadQuestion();
-  } else {
-    showScore();
-  }
-}
-
-function showScore() {
-  resetState();
-  clearInterval(timer);
-  quizScreen.classList.remove("active");
-
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem("highScore", highScore);
   }
 
-  resultText.innerHTML = `
-    You scored ${score} out of ${questions.length}!<br>
-    High Score: ${highScore}
-  `;
+  function loadQuestion() {
+    resetState();
+    clearInterval(timer);
+    timeLeft = 8;
+    answerSelected = false;
+    updateTimerDisplay();
 
-  if (score === questions.length) {
-    resultText.classList.add("perfect-score");
-  } else {
-    resultText.classList.remove("perfect-score");
+    timer = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0 && !answerSelected) {
+        clearInterval(timer);
+        answerSelected = true;
+        handleNext();
+      }
+    }, 1000);
+
+    const current = questions[currentQuestionIndex];
+    questionElement.innerHTML = `${currentQuestionIndex + 1}. ${current.question}`;
+
+    current.answers.forEach(answer => {
+      const btn = document.createElement("button");
+      btn.classList.add("option");
+      btn.innerHTML = answer.text;
+      if (answer.correct) btn.dataset.correct = true;
+      btn.addEventListener("click", () => {
+        if (answerSelected) return;
+        answerSelected = true;
+        clearInterval(timer);
+        checkAnswer(btn);
+      });
+      answerButtons.appendChild(btn);
+    });
   }
 
-  resultScreen.classList.remove("hidden");
-  void resultScreen.offsetWidth; // force reflow
-  resultScreen.classList.add("active");
-}
+  function updateTimerDisplay() {
+    timerDisplay.textContent = `Time left: ${timeLeft}s`;
+  }
 
-restartBtn.addEventListener("click", () => {
-  resultScreen.classList.remove("active");
-  resultScreen.classList.add("hidden");
-  quizScreen.classList.add("active");
-  startQuiz();
-});
+  function resetState() {
+    nextButton.classList.remove("show");
+    while (answerButtons.firstChild) {
+      answerButtons.removeChild(answerButtons.firstChild);
+    }
+  }
 
-window.addEventListener("DOMContentLoaded", () => {
+  function checkAnswer(button) {
+    const isCorrect = button.dataset.correct === "true";
+    if (isCorrect) score++;
+    button.classList.add(isCorrect ? "correct" : "incorrect");
+
+    Array.from(answerButtons.children).forEach(btn => {
+      btn.disabled = true;
+      btn.classList.add("locked");
+      if (btn.dataset.correct === "true") btn.classList.add("correct");
+    });
+
+    nextButton.classList.add("show");
+  }
+
+  function handleNext() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      loadQuestion();
+    } else {
+      showScore();
+    }
+  }
+
+  function showScore() {
+    resetState();
+    clearInterval(timer);
+    quizScreen.classList.remove("active");
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("highScore", highScore);
+    }
+
+    resultText.innerHTML = `
+      You scored ${score} out of ${questions.length}!<br>
+      High Score: ${highScore}
+    `;
+
+    if (score === questions.length) {
+      resultText.classList.add("perfect-score");
+    } else {
+      resultText.classList.remove("perfect-score");
+    }
+
+    resultScreen.classList.remove("hidden");
+    void resultScreen.offsetWidth;
+    resultScreen.classList.add("active");
+  }
+
+  restartBtn.addEventListener("click", () => {
+    resultScreen.classList.remove("active");
+    resultScreen.classList.add("hidden");
+    quizScreen.classList.add("active");
+    startQuiz();
+  });
+
   welcomeScreen.style.display = "block";
   quizScreen.classList.remove("active");
-});
-startBtn.addEventListener("click", () => {
+
+  startBtn.addEventListener("click", () => {
     welcomeScreen.style.display = "none";
     quizScreen.classList.add("active");
     startQuiz();
   });
+});
